@@ -12,38 +12,58 @@ export function createMixer(): Mixer {
   let crowd: GainNode | null = null;
   let crowdFilter: BiquadFilterNode | null = null;
 
+  // Audio is optional: a device/WebView without Web Audio must still open the game.
   const unlock = () => {
-    if (!ctx) {
-      const AC = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-      ctx = new AC({ latencyHint: "interactive" });
-      master = ctx.createGain();
-      sfx = ctx.createGain();
-      crowd = ctx.createGain();
-      sfx.gain.value = 0.6;
-      crowd.gain.value = 0.08;
-      sfx.connect(master);
-      crowd.connect(master);
-      master.connect(ctx.destination);
-      const buffer = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate);
-      const data = buffer.getChannelData(0);
-      let brown = 0;
-      for (let i = 0; i < data.length; i++) {
-        const white = Math.random() * 2 - 1;
-        brown = brown * 0.985 + white * 0.015;
-        data[i] = brown * 2.2;
+    try {
+      if (!ctx) {
+        const AC =
+          window.AudioContext ??
+          (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+        if (!AC) return;
+
+        ctx = new AC({ latencyHint: "interactive" });
+        master = ctx.createGain();
+        sfx = ctx.createGain();
+        crowd = ctx.createGain();
+        sfx.gain.value = 0.6;
+        crowd.gain.value = 0.08;
+        sfx.connect(master);
+        crowd.connect(master);
+        master.connect(ctx.destination);
+
+        const buffer = ctx.createBuffer(1, Math.max(1, Math.floor(ctx.sampleRate * 2)), ctx.sampleRate);
+        const data = buffer.getChannelData(0);
+        let brown = 0;
+        for (let i = 0; i < data.length; i++) {
+          const white = Math.random() * 2 - 1;
+          brown = brown * 0.985 + white * 0.015;
+          data[i] = brown * 2.2;
+        }
+        const src = ctx.createBufferSource();
+        src.buffer = buffer;
+        src.loop = true;
+        crowdFilter = ctx.createBiquadFilter();
+        crowdFilter.type = "bandpass";
+        crowdFilter.frequency.value = 420;
+        crowdFilter.Q.value = 0.55;
+        src.connect(crowdFilter);
+        crowdFilter.connect(crowd);
+        src.start();
       }
-      const src = ctx.createBufferSource();
-      src.buffer = buffer;
-      src.loop = true;
-      crowdFilter = ctx.createBiquadFilter();
-      crowdFilter.type = "bandpass";
-      crowdFilter.frequency.value = 420;
-      crowdFilter.Q.value = 0.55;
-      src.connect(crowdFilter);
-      crowdFilter.connect(crowd);
-      src.start();
+
+      if (ctx.state === "suspended") void ctx.resume().catch(() => undefined);
+    } catch {
+      // A sound API failure must never block navigation or the match.
+      const failedContext = ctx;
+      ctx = null;
+      master = null;
+      sfx = null;
+      crowd = null;
+      crowdFilter = null;
+      if (failedContext && failedContext.state !== "closed") {
+        void failedContext.close().catch(() => undefined);
+      }
     }
-    if (ctx.state === "suspended") void ctx.resume();
   };
 
   const setVolumes = (sfxV: number, crowdV: number) => {
