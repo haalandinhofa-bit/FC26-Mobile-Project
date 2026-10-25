@@ -1425,7 +1425,7 @@ export class MatchSim {
     this.gkThink(dt);
     const sub = 4;
     for (let s = 0; s < sub; s++) {
-      if (this.phase === "goal" || this.phase === "replay") break;
+      if ((this.phase as Phase) === "goal" || (this.phase as Phase) === "replay") break;
       this.integrateBall(dt / sub);
       if (this.phase !== "play" && this.piece) break;
     }
