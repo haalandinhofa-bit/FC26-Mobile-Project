@@ -189,8 +189,13 @@ export function GameApp() {
           type="button"
           className="mt-8 rounded-full bg-accent px-8 py-3 font-semibold text-ink"
           onClick={() => {
-            mixer.unlock();
+            // Let the user enter even if this Android WebView cannot start audio.
             setScreen("menu");
+            try {
+              mixer.unlock();
+            } catch {
+              // Audio is non-essential; gameplay remains available silently.
+            }
           }}
         >
           Tap to enter
