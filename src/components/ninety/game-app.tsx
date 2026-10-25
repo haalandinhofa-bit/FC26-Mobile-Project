@@ -790,7 +790,7 @@ function NewPlayer({ onCreate }: { onCreate: (opts: Parameters<typeof createPlay
   );
 }
 
-function Dashboard({ save, onPlay, onSim, onNav, onSeason, done }: { save: CareerSave; onPlay: () => void; onSim: () => void; onNav: (s: Screen) => void; onSeason: () => void; done: boolean }) {
+function Dashboard({ save, onPlay, onSim, onTrain, onNav, onSeason, done }: { save: CareerSave; onPlay: () => void; onSim: () => void; onTrain: (key: "pac" | "sho" | "pas" | "dri" | "def" | "phy") => void; onNav: (s: Screen) => void; onSeason: () => void; done: boolean }) {
   const club = getClub(save.clubId);
   const fix = nextUserFixture(save);
   const opp = fix ? (fix.home === save.clubId ? fix.away : fix.home) : "";
@@ -830,7 +830,7 @@ function Dashboard({ save, onPlay, onSim, onNav, onSeason, done }: { save: Caree
       {save.kind === "player" && save.trains < 4 ? (
         <div className="flex flex-wrap gap-2">
           {(["pac", "sho", "pas", "dri", "def", "phy"] as const).map((k) => (
-            <TrainBtn key={k} label={k.toUpperCase()} onClick={() => onNav("dash")} />
+            <TrainBtn key={k} label={k.toUpperCase()} onClick={() => onTrain(k)} />
           ))}
         </div>
       ) : null}
