@@ -240,7 +240,7 @@ export class MatchSim {
     passT: 0, shot: false, freeze: true, rolled: false,
   };
   phase: Phase = "kickoff";
-  attack: [1, -1] as [number, number];
+  attack: [number, number] = [1, -1];
   period = 1;
   clock = 0;
   periodLen = 60;
