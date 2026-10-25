@@ -1,0 +1,46 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg: #07090e;
+  --color-surface: #121826;
+  --color-surface-2: #1b2433;
+  --color-fg: #e9eef6;
+  --color-muted: #93a0b5;
+  --color-accent: #d6ff3f;
+  --color-ink: #142000;
+  --color-line: #2a3548;
+  --color-danger: #ff5d6c;
+  --font-sans: "Barlow", system-ui, sans-serif;
+  --font-display: "Oswald", sans-serif;
+  --radius: 0.9rem;
+}
+
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  html,
+  body {
+    height: 100%;
+    background: var(--color-bg);
+    color: var(--color-fg);
+  }
+
+  body {
+    margin: 0;
+    overflow: hidden;
+  }
+
+  input,
+  select {
+    font: inherit;
+    color: inherit;
+  }
+}
+
+@utility scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-line) transparent;
+}
