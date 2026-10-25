@@ -47,7 +47,7 @@ jobs:
         run: npm ci
 
       - name: Install Capacitor build tools
-        run: npm install --no-save --package-lock=false @capacitor/core @capacitor/cli @capacitor/android
+        run: npm install --no-save @capacitor/core @capacitor/cli @capacitor/android
 
       - name: Build offline web app
         run: npx vite build --config vite.mobile.config.ts
