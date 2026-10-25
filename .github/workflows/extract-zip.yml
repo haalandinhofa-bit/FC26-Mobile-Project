@@ -1,0 +1,32 @@
+name: Extract project ZIP
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Extract project files
+        run: |
+          mkdir -p /tmp/grok-workspace
+          unzip -q grok-workspace.zip -d /tmp/grok-workspace
+          rsync -a --exclude='/.git/' --exclude='/grok-workspace.zip' /tmp/grok-workspace/ ./
+
+      - name: Commit extracted files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No extracted changes to commit."
+          else
+            git commit -m "Extract project ZIP into repository"
+            git push
+          fi
